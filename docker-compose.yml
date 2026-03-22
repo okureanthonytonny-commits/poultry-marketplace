@@ -1,0 +1,14 @@
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: limelight_admin
+      POSTGRES_PASSWORD: ca67c783dfc74ef9db33794b
+      POSTGRES_DB: limelight_v2
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data_v2:/var/lib/postgresql/data
+
+volumes:
+  postgres_data_v2:
