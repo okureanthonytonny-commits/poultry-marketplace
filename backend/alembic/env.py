@@ -5,6 +5,8 @@ from alembic import context
 import os
 from dotenv import load_dotenv
 from sqlmodel import SQLModel
+from app.modules.auth.models import User, Session  # Import your models here
+from app.models import Item  # Import your other models here
 
 # Load environment variables from .env
 load_dotenv()

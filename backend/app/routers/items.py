@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from sqlmodel import select
-from app.database import get_session
+from app.core.database import get_session
 from app.models import Item
 from app.schemas import ItemCreate, ItemRead
 

@@ -1,0 +1,43 @@
+.
+├── alembic
+│   ├── env.py
+│   ├── README
+│   ├── script.py.mako
+│   └── versions
+│       └── c97898c5cdab_create_items_table.py
+├── alembic.ini
+├── app
+│   ├── core
+│   │   ├── config.py
+│   │   ├── database.py
+│   │   ├── dependencies.py
+│   │   └── __init__.py
+│   ├── __init__.py
+│   ├── main.py
+│   ├── models.py
+│   ├── modules
+│   │   └── auth
+│   │       ├── __init__.py
+│   │       ├── models.py
+│   │       ├── router.py
+│   │       ├── schemas.py
+│   │       └── services.py
+│   ├── routers
+│   │   ├── __init__.py
+│   │   └── items.py
+│   └── schemas.py
+├── requirements.txt
+└── temp.txt
+
+8 directories, 22 files
+cat app/schemas.py >> temp.txt
+from pydantic import BaseModel
+from datetime import datetime
+
+class ItemCreate(BaseModel):
+    name: str
+
+class ItemRead(BaseModel):
+    id: int
+    name: str
+    created_at: datetime
