@@ -1,6 +1,6 @@
 from sqlmodel import Session, select
 from .models import User, Session as DBSession
-from .schemas import UserCreate
+from .schemas import UserCreate, UserUpdate
 from datetime import datetime, timedelta, timezone
 import secrets
 
@@ -50,3 +50,15 @@ def delete_session(db: Session, session_id: str):
     if db_session:
         db.delete(db_session)
         db.commit()
+
+def update_user(db: Session, user_id: int, update_data: UserUpdate) -> User | None:
+    user = db.get(User, user_id)
+    if not user:
+        return None
+    for field, value in update_data.model_dump(exclude_unset=True).items():
+        setattr(user, field, value)
+    # updated_at will be auto-updated by the onupdate trigger
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user

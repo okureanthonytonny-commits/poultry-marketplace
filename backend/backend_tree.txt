@@ -1,0 +1,68 @@
+.
+├── alembic
+│   ├── env.py
+│   ├── __pycache__
+│   │   └── env.cpython-312.pyc
+│   ├── README
+│   ├── script.py.mako
+│   └── versions
+│       ├── 04221569dbf2_add_auth_tables.py
+│       ├── 0d466d0a6559_fix_updated_at_field_to_autoupdate.py
+│       ├── 95650adb1afd_fix_role_default_to_lowercase.py
+│       ├── c97898c5cdab_create_items_table.py
+│       └── __pycache__
+│           ├── 04221569dbf2_add_auth_tables.cpython-312.pyc
+│           ├── 0d466d0a6559_fix_updated_at_field_to_autoupdate.cpython-312.pyc
+│           ├── 95650adb1afd_fix_role_default_to_lowercase.cpython-312.pyc
+│           └── c97898c5cdab_create_items_table.cpython-312.pyc
+├── alembic.ini
+├── app
+│   ├── core
+│   │   ├── config.py
+│   │   ├── database.py
+│   │   ├── dependencies.py
+│   │   ├── __init__.py
+│   │   └── __pycache__
+│   │       ├── config.cpython-312.pyc
+│   │       ├── database.cpython-312.pyc
+│   │       └── __init__.cpython-312.pyc
+│   ├── __init__.py
+│   ├── main.py
+│   ├── models.py
+│   ├── modules
+│   │   └── auth
+│   │       ├── __init__.py
+│   │       ├── issues.md
+│   │       ├── models.py
+│   │       ├── __pycache__
+│   │       │   ├── __init__.cpython-312.pyc
+│   │       │   ├── models.cpython-312.pyc
+│   │       │   ├── router.cpython-312.pyc
+│   │       │   ├── schemas.cpython-312.pyc
+│   │       │   └── services.cpython-312.pyc
+│   │       ├── router.py
+│   │       ├── schemas.py
+│   │       ├── services.py
+│   │       └── tests
+│   │           ├── __init__.py
+│   │           ├── __pycache__
+│   │           │   └── test_auth.cpython-312-pytest-9.0.2.pyc
+│   │           ├── test_auth.py
+│   │           └── test-result.txt
+│   ├── __pycache__
+│   │   ├── database.cpython-312.pyc
+│   │   ├── __init__.cpython-312.pyc
+│   │   ├── main.cpython-312.pyc
+│   │   ├── models.cpython-312.pyc
+│   │   └── schemas.cpython-312.pyc
+│   ├── routers
+│   │   ├── __init__.py
+│   │   ├── items.py
+│   │   └── __pycache__
+│   │       ├── __init__.cpython-312.pyc
+│   │       └── items.cpython-312.pyc
+│   └── schemas.py
+├── backend_tree.txt
+└── requirements.txt
+
+16 directories, 50 files
