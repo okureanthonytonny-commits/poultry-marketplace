@@ -9,10 +9,10 @@
 - [x] Fix user role storage (store lowercase string)
 - [x] Auto‑update `updated_at` on user updates
 - [x] Tests for auth (6 tests passing)
+- [x] Products module: models, schemas, services, router, tests
 
 ## In Progress / Next
 - [ ] Replace frontend mock auth with real `/auth/me` and `/auth/logout` calls
-- [ ] Build products module (models, schemas, router, services, tests)
 - [ ] Add image upload (compression on client, cloud storage)
 - [ ] Build cart module
 - [ ] Build orders module

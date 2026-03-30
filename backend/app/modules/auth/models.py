@@ -13,7 +13,7 @@ class User(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     email: str = Field(unique=True, index=True)
     name: Optional[str] = None
-    role: UserRole = Field(default=UserRole.CUSTOMER.value)
+    role: str = Field(default="customer", description="Role of the user: 'customer' or 'admin'")
     oauth_provider: Optional[str] = None
     oauth_id: Optional[str] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None))

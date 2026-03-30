@@ -24,7 +24,7 @@ class UserUpdate(BaseModel):
     def validate_role(cls, v):
         if v is not None and v not in ('customer', 'admin'):
             raise ValueError('Role must be "customer" or "admin"')
-        return v    
+        return v
 
 class SessionRead(BaseModel):
     session_id: str
