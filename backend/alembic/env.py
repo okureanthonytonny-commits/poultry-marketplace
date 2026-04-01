@@ -8,6 +8,7 @@ from sqlmodel import SQLModel
 from app.modules.auth.models import User, Session  # Import your models here
 from app.modules.products.models import Product  # Import your other models here
 from app.models import Item  # Import your other models here
+from app.modules.cart.models import CartItem  # Import your cart model here
 
 # Load environment variables from .env
 load_dotenv()

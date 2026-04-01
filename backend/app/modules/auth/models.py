@@ -1,19 +1,21 @@
-from sqlmodel import SQLModel, Field
+from sqlmodel import Relationship, SQLModel, Field
 from datetime import datetime, timedelta, timezone
-from typing import Optional
+from typing import List, Optional
 import secrets
 from enum import Enum
+
 
 class UserRole(str, Enum):
     CUSTOMER = "customer"
     ADMIN = "admin"
+
 
 class User(SQLModel, table=True):
     __tablename__ = "users"
     id: Optional[int] = Field(default=None, primary_key=True)
     email: str = Field(unique=True, index=True)
     name: Optional[str] = None
-    role: str = Field(default="customer", description="Role of the user: 'customer' or 'admin'")
+    role: str = Field(default="customer")
     oauth_provider: Optional[str] = None
     oauth_id: Optional[str] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
@@ -21,7 +23,8 @@ class User(SQLModel, table=True):
         default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None),
         sa_column_kwargs={"onupdate": lambda: datetime.now(timezone.utc).replace(tzinfo=None)}
     )
-    
+
+
 class Session(SQLModel, table=True):
     __tablename__ = "sessions"
     id: Optional[int] = Field(default=None, primary_key=True)
@@ -29,3 +32,12 @@ class Session(SQLModel, table=True):
     user_id: int = Field(foreign_key="users.id")
     expires_at: datetime = Field(default_factory=lambda: (datetime.now(timezone.utc) + timedelta(days=7)).replace(tzinfo=None))
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
+
+
+# Import CartItem after User is defined
+from app.modules.cart.models import CartItem  # noqa: E402, F401
+
+# Add relationship attribute dynamically  
+User.cart_items = Relationship(back_populates="user")  # type: ignore
+
+User.model_rebuild()
