@@ -81,6 +81,7 @@ Run the module tests:
 ```bash
 cd backend
 python -m pytest app/modules/auth/tests/test_auth.py -v
+```
 
 ## Tests cover:
 

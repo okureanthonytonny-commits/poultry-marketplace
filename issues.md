@@ -1,6 +1,7 @@
 # Limelight v2 – Development Issues
 
 ## Completed
+
 - [x] Project setup with Docker, FastAPI, SQLModel, Alembic
 - [x] Minimal items API (test endpoint)
 - [x] React frontend with API client
@@ -9,13 +10,15 @@
 - [x] Fix user role storage (store lowercase string)
 - [x] Auto‑update `updated_at` on user updates
 - [x] Tests for auth (6 tests passing)
-- [x] Products module: models, schemas, services, router, tests
+- [x] Products module: CRUD, soft delete, duplicate name check, tests
+- [x] Cart module: add, update, remove, clear, tests
+- [x] Orders module: create from cart, list, detail, status update, enrichment, tests
+- [x] Integration tests for authenticated endpoints (bash script)
 
 ## In Progress / Next
+
 - [ ] Replace frontend mock auth with real `/auth/me` and `/auth/logout` calls
+- [ ] Build admin frontend for product management
 - [ ] Add image upload (compression on client, cloud storage)
-- [ ] Build cart module
-- [ ] Build orders module
-- [ ] Add admin endpoints with role checks
-- [ ] Write comprehensive tests for each module
 - [ ] Deployment to production (Vercel + Render + Cloudinary)
+- [ ] Write comprehensive documentation (API, setup, deployment)

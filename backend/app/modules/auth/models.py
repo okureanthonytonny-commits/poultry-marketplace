@@ -2,12 +2,6 @@ from sqlmodel import Relationship, SQLModel, Field
 from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 import secrets
-from enum import Enum
-
-
-class UserRole(str, Enum):
-    CUSTOMER = "customer"
-    ADMIN = "admin"
 
 
 class User(SQLModel, table=True):

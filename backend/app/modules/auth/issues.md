@@ -1,9 +1,10 @@
 # Auth Module – Issues & Notes
 
 ## Completed
-- [x] User and Session models
+
+- [x] User and Session models (SQLModel)
 - [x] OAuth integration with Google
-- [x] Session cookie management
+- [x] Session cookie management (HttpOnly)
 - [x] Authentication endpoints (/login, /callback, /logout)
 - [x] Dependencies: get_current_user, require_admin
 - [x] Pydantic schemas for request/response
@@ -12,7 +13,8 @@
 - [x] Unit tests for services and schemas
 - [x] Updated_at auto‑update using SQLAlchemy onupdate
 
-## Remaining / Future Enhancements
+## Remaining / Future
+
 - [ ] Admin endpoint to promote users to admin (currently manual DB update)
 - [ ] Password-based authentication (if needed later)
 - [ ] Rate limiting on login attempts

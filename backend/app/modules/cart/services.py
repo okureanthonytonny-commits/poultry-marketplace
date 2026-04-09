@@ -1,32 +1,13 @@
+from typing import List
 from sqlmodel import Session, select
 from .models import CartItem
 from app.modules.products.models import Product
 from app.modules.products.services import get_product  # reuse
 from fastapi import HTTPException
 
-def get_cart(db: Session, user_id: int):
+def get_cart_items(db: Session, user_id: int) -> List[CartItem]:
     stmt = select(CartItem).where(CartItem.user_id == user_id)
-    items = db.exec(stmt).all()
-    # Enrich with product details
-    enriched = []
-    for item in items:
-        product = get_product(db, item.product_id, include_deleted=False)
-        if product:
-            enriched.append({
-                "id": item.id,
-                "product_id": item.product_id,
-                "quantity": item.quantity,
-                "product_name": product.name,
-                "product_price": product.price,
-                "product_image_url": product.image_url,
-                "created_at": item.created_at,
-                "updated_at": item.updated_at,
-            })
-        else:
-            # If product is deleted, remove from cart automatically
-            db.delete(item)
-    db.commit()
-    return enriched
+    return db.exec(stmt).all()
 
 def add_to_cart(db: Session, user_id: int, product_id: int, quantity: int):
     # Check product exists and is not deleted
@@ -93,8 +74,7 @@ def remove_cart_item(db: Session, user_id: int, product_id: int):
     db.commit()
 
 def clear_cart(db: Session, user_id: int):
-    stmt = select(CartItem).where(CartItem.user_id == user_id)
-    items = db.exec(stmt).all()
+    items = get_cart_items(db, user_id)
     for item in items:
         db.delete(item)
-    db.commit()
+    # No commit here – caller decides when to commit after clearing cart and doing other operations (like creating order)
