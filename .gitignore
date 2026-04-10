@@ -1,3 +1,22 @@
-/node_modules/
-__pycache__/
+# Environments
+.env
+.env.*
 *.pyc
+__pycache__/
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# Test artifacts
+.pytest_cache/
+*.db
+test.db
+
+# Docker volumes (if we commit docker-compose, but volumes are not tracked)
+# But no need.
+
+# Frontend node_modules
+node_modules/
+dist/
