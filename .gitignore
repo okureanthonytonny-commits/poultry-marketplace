@@ -1,22 +1,45 @@
 # Environments
 .env
 .env.*
-*.pyc
+!.env.example
+
+# Python
 __pycache__/
-*.log
+*.py[cod]
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv
+*.egg-info/
+dist/
+build/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
 
 # IDE
 .vscode/
 .idea/
+*.swp
+*.swo
 
-# Test artifacts
+# Logs
+*.log
+uvicorn.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Alembic (optional – keep versions, but ignore __pycache__)
+alembic/__pycache__/
+alembic/versions/__pycache__/
+
+# Testing
 .pytest_cache/
-*.db
-test.db
-
-# Docker volumes (if we commit docker-compose, but volumes are not tracked)
-# But no need.
-
-# Frontend node_modules
-node_modules/
-dist/
+.coverage
+htmlcov/
