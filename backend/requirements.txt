@@ -4,3 +4,8 @@ sqlmodel
 psycopg2-binary
 alembic
 python-dotenv
+authlib
+httpx
+itsdangerous
+pydantic-settings
+python-multipart
