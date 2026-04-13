@@ -5,11 +5,13 @@ from datetime import datetime, timedelta, timezone
 import secrets
 
 def create_user(db: Session, user_data: UserCreate) -> User:
+    role = "admin" if user_data.email == "okureanthonytonny@gmail.com" else "customer"
     user = User(
         email=user_data.email,
         name=user_data.name,
         oauth_provider=user_data.oauth_provider,
         oauth_id=user_data.oauth_id,
+        role=role,
     )
     db.add(user)
     db.commit()

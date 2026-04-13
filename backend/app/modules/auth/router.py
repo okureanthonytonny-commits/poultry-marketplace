@@ -7,8 +7,10 @@ from authlib.integrations.starlette_client import OAuth
 from starlette.config import Config
 from app.core.database import get_session
 from app.core.config import settings
-from .services import create_user, get_user_by_oauth, create_session, get_user_by_session_id, delete_session
-from .schemas import UserCreate, UserRead
+from app.core.dependencies import require_admin
+from app.modules.auth.models import User
+from .services import create_user, get_user_by_oauth, create_session, get_user_by_session_id, delete_session, update_user, update_user
+from .schemas import UserCreate, UserRead, UserUpdate
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -20,6 +22,19 @@ oauth.register(
     server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
     client_kwargs={'scope': 'openid email profile'},
 )
+
+@router.patch("/admin/users/{user_id}", response_model=UserRead)
+def admin_update_user(
+    user_id: int,
+    update_data: UserUpdate,
+    db: DBSession = Depends(get_session),
+    _: User = Depends(require_admin)
+):
+    user = update_user(db, user_id, update_data)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+
 
 @router.get("/login")
 async def login(request: Request):

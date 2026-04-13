@@ -4,7 +4,7 @@
 # Make sure: 1) Database is running: docker-compose up -d db
 #            2) Uvicorn server is running: uvicorn app.main:app --reload
 
-BASE_URL="http://localhost:8000"
+BASE_URL="https://limelight-v2.onrender.com"
 HEADER_JSON="Content-Type: application/json"
 
 echo "=== LIMELIGHT V2 API TEST SUITE ==="

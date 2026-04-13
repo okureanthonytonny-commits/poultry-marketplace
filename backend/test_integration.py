@@ -3,7 +3,7 @@ import json
 
 BASE_URL = "http://localhost:8000"
 
-# Replace this with your actual session_id cookie value from the browser
+# Preferably set via environment variable: export SESSION_ID="your_cookie_here"
 SESSION_ID = "eJoiIRxjWYG2F4sASGRjI1BkcMCK8ZUm-LKJsxxOMlo"
 
 # Headers with session cookie
@@ -69,9 +69,25 @@ def test_cart_operations():
     resp = requests.delete(f"{BASE_URL}/cart/items/1", headers=headers)
     print(f"DELETE /cart/items/1 -> {resp.status_code}")
 
-    # Clear cart
-    resp = requests.delete(f"{BASE_URL}/cart/", headers=headers)
-    print(f"DELETE /cart/ -> {resp.status_code}")
+    # Test invalid product ID
+    print("  Testing invalid product ID...")
+    resp = requests.get(f"{BASE_URL}/products/9999999", headers=headers)
+    assert resp.status_code == 404, f"Expected 404 for invalid product, got {resp.status_code}"
+    print("  ✅ Correctly handled invalid ID")
+
+    # Test stock limit enforcement
+    print("  Testing stock limit enforcement...")
+    # Assuming product 1 has stock < 1000
+    overstock_data = {"product_id": 1, "quantity": 1000}
+    resp = requests.post(f"{BASE_URL}/cart/items", json=overstock_data, headers=headers)
+    if resp.status_code in [400, 422]:
+        print(f"  ✅ Correctly blocked overstock: {resp.json().get('detail')}")
+    else:
+        print(f"  ❌ Failed to block overstock: {resp.status_code}")
+
+    # Clean up cart
+    requests.delete(f"{BASE_URL}/cart/", headers=headers)
+    print("  Cart cleaned up.")
 
     return True
 
@@ -123,5 +139,3 @@ if __name__ == "__main__":
     test_cart_operations()
     test_admin_product_ops()
     print("\n✅ Integration tests completed.")
-
-

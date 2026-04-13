@@ -83,7 +83,7 @@ cd backend
 python -m pytest app/modules/auth/tests/test_auth.py -v
 ```
 
-## Tests cover:
+## Tests cover
 
     User creation with default role
 
