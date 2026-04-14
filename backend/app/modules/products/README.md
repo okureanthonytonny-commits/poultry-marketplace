@@ -13,12 +13,12 @@ This module provides CRUD operations for products with soft delete, duplicate na
 | Field        | Type      | Description                     |
 |--------------|-----------|---------------------------------|
 | `id`         | `int`     | Primary key                     |
-| `name`       | `str`     | Product name, max length 255, indexed |
+| `name`       | `str`     | Product name, max length 255, indexed|
 | `description`| `str?`    | Optional, max length 500        |
 | `price`      | `float`   | Must be > 0                     |
 | `stock`      | `int`     | Default 0, >= 0                 |
 | `image_url`  | `str?`    | Optional image URL, max 500     |
-| `deleted_at` | `datetime?`| Soft delete timestamp           |
+| `deleted_at` | `datetime?| Soft delete timestamp           |
 | `created_at` | `datetime`| Creation time                   |
 | `updated_at` | `datetime`| Auto‑updated on change          |
 
@@ -70,6 +70,7 @@ Tests cover:
     All admin endpoints (using a test database)
 
 ## Notes
-    Soft‑deleted products are hidden from public endpoints.
+
+   Soft‑deleted products are hidden from public endpoints.
     Duplicate name check is case‑sensitive and applies only to active (not soft‑deleted) products.
     Admin role is required for all write endpoints; role check uses require_admin from core dependencies.

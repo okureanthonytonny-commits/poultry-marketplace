@@ -12,6 +12,8 @@ venv/
 env/
 ENV/
 .venv
+.conda/
+limelight_v2/
 *.egg-info/
 dist/
 build/
@@ -30,6 +32,10 @@ build/
 # Logs
 *.log
 uvicorn.log
+result.txt
+test_*.txt
+*.txt
+!requirements.txt
 
 # OS
 .DS_Store
