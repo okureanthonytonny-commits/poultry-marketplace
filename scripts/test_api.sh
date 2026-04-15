@@ -138,3 +138,4 @@ echo "  - OAuth login requires Google OAuth credentials in .env"
 echo "  - To test authenticated endpoints, you need a valid session_id cookie"
 echo "  - Admin endpoints require 'admin' role"
 echo ""
+<Content of test_api.sh moved here, updated with BASE_URL check if needed>

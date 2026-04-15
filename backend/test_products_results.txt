@@ -1,1 +1,0 @@
-Create product: 409 {'detail': 'Product with this name already exists'}
