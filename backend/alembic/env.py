@@ -5,10 +5,7 @@ from alembic import context
 import os
 from dotenv import load_dotenv
 from sqlmodel import SQLModel
-from app.modules.auth.models import User, Session  # Import your models here
-from app.modules.products.models import Product  # Import your other models here
-from app.modules.cart.models import CartItem  # Import your cart model here
-from app.modules.orders.models import Order, OrderItem  # Import your order models here
+
 
 # Load environment variables from .env
 load_dotenv()
@@ -28,7 +25,10 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 # Import your models here so that SQLModel.metadata includes them
-from app.models import Item   # or import all models you have
+from app.modules.auth.models import User, Session  # Import your models here
+from app.modules.products.models import Product  # Import your other models here
+from app.modules.cart.models import CartItem  # Import your cart model here
+from app.modules.orders.models import Order, OrderItem  # Import your order models here
 
 target_metadata = SQLModel.metadata
 
