@@ -14,6 +14,9 @@
 - [x] Cart module: add, update, remove, clear, tests
 - [x] Orders module: create from cart, list, detail, status update, enrichment, tests
 - [x] Integration tests for authenticated endpoints (bash script)
+- [X] Removed old traces of "item model". It was used to test functionality before the actual build started.
+- [X] Removed fronte*/
+- [X] Moving test scripts and docs to tests/ and docs/
 
 ## In Progress / Next
 
