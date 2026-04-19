@@ -1,0 +1,78 @@
+.
+├── backend
+│   ├── alembic
+│   │   ├── env.py
+│   │   ├── README
+│   │   ├── script.py.mako
+│   │   └── versions
+│   │       ├── 04221569dbf2_add_auth_tables.py
+│   │       ├── 0d466d0a6559_fix_updated_at_field_to_autoupdate.py
+│   │       ├── 5957ed742b98_add_products_table_with_soft_delete.py
+│   │       ├── 84114a520f6c_add_orders_and_order_items_tables.py
+│   │       ├── 8a655cbee59e_add_orders_and_order_items_tables.py
+│   │       ├── 8cbc6d017723_convert_role_column_to_string_and_set_.py
+│   │       ├── 95650adb1afd_fix_role_default_to_lowercase.py
+│   │       ├── b96350cfefa8_add_cart_items_table.py
+│   │       └── c97898c5cdab_create_items_table.py
+│   ├── alembic.ini
+│   ├── app
+│   │   ├── conftest.py
+│   │   ├── core
+│   │   │   ├── config.py
+│   │   │   ├── database.py
+│   │   │   ├── dependencies.py
+│   │   │   └── __init__.py
+│   │   ├── __init__.py
+│   │   ├── main.py
+│   │   └── modules
+│   │       ├── auth
+│   │       │   ├── __init__.py
+│   │       │   ├── issues.md
+│   │       │   ├── models.py
+│   │       │   ├── README.md
+│   │       │   ├── router.py
+│   │       │   ├── schemas.py
+│   │       │   ├── services.py
+│   │       │   └── tests
+│   │       │       ├── __init__.py
+│   │       │       ├── test_auth_api.py
+│   │       │       └── test_auth.py
+│   │       ├── cart
+│   │       │   ├── __init__.py
+│   │       │   ├── issues.md
+│   │       │   ├── models.py
+│   │       │   ├── README.md
+│   │       │   ├── router.py
+│   │       │   ├── schemas.py
+│   │       │   ├── services.py
+│   │       │   └── tests
+│   │       │       ├── __init__.py
+│   │       │       └── test_cart_api.py
+│   │       ├── orders
+│   │       │   ├── __init__.py
+│   │       │   ├── issues.md
+│   │       │   ├── models.py
+│   │       │   ├── README.md
+│   │       │   ├── router.py
+│   │       │   ├── schemas.py
+│   │       │   ├── services.py
+│   │       │   └── tests
+│   │       │       ├── __init__.py
+│   │       │       └── test_orders_api.py
+│   │       └── products
+│   │           ├── __init__.py
+│   │           ├── issues.md
+│   │           ├── models.py
+│   │           ├── README.md
+│   │           ├── router.py
+│   │           ├── schemas.py
+│   │           ├── services.py
+│   │           └── tests
+│   │               ├── __init__.py
+│   │               ├── test_products_api.py
+│   │               └── test_products.py
+│   └── tests
+├── docker-compose.yml
+└── temp.txt
+
+16 directories, 60 files

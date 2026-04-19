@@ -36,6 +36,9 @@ result.txt
 test_*.txt
 *.txt
 !requirements.txt
+!docs/backend/business_logic.txt
+!project-tree.txt
+!*.md
 
 # OS
 .DS_Store
@@ -49,3 +52,5 @@ alembic/versions/__pycache__/
 .pytest_cache/
 .coverage
 htmlcov/
+
+old-frontend/
