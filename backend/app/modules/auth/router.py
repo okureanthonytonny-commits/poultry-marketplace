@@ -1,15 +1,12 @@
-import secrets
-from datetime import datetime, timedelta
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from sqlmodel import Session as DBSession
 from starlette.responses import RedirectResponse
 from authlib.integrations.starlette_client import OAuth
-from starlette.config import Config
 from app.core.database import get_session
 from app.core.config import settings
 from app.core.dependencies import require_admin
 from app.modules.auth.models import User
-from .services import create_user, get_user_by_oauth, create_session, get_user_by_session_id, delete_session, update_user, update_user
+from .services import create_user, get_user_by_oauth, create_session, get_user_by_session_id, delete_session, update_user
 from .schemas import UserCreate, UserRead, UserUpdate
 
 router = APIRouter(prefix="/auth", tags=["auth"])
