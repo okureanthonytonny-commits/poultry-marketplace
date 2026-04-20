@@ -6,7 +6,7 @@ from app.core.database import get_session
 from app.core.config import settings
 from app.core.dependencies import require_admin
 from app.modules.auth.models import User
-from .services import create_user, get_user_by_oauth, create_session, get_user_by_session_id, delete_session, update_user
+from .services import create_user, get_user_by_oauth, create_session, get_user_by_session_id, delete_session, update_user, hard_delete_session
 from .schemas import UserCreate, UserRead, UserUpdate
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -32,6 +32,14 @@ def admin_update_user(
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
+@router.delete("/admin/sessions/{session_id}")
+def admin_delete_session(
+    session_id: str,
+    db: DBSession = Depends(get_session),
+    _: User = Depends(require_admin)
+):
+    hard_delete_session(db, session_id)
+    return {"message": "Session hard deleted"}
 
 @router.get("/login")
 async def login(request: Request):
