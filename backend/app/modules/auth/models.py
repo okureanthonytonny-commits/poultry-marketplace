@@ -26,6 +26,7 @@ class Session(SQLModel, table=True):
     user_id: int = Field(foreign_key="users.id")
     expires_at: datetime = Field(default_factory=lambda: (datetime.now(timezone.utc) + timedelta(days=7)).replace(tzinfo=None))
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
+    deleted_at: Optional[datetime] = None
 
 
 # Import CartItem after User is defined
