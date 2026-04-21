@@ -72,7 +72,7 @@ async def callback(request: Request, db: DBSession = Depends(get_session)):
             ))
         # Create session
         db_session = create_session(db, user.id)
-        response = RedirectResponse(url="/")
+        response = RedirectResponse(url=settings.FRONTEND_URL)
         response.set_cookie(
             key="session_id",
             value=db_session.session_id,
