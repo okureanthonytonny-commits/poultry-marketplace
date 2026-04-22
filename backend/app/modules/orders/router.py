@@ -4,7 +4,7 @@ from app.core.database import get_session
 from app.core.dependencies import get_current_user, require_admin
 from app.modules.auth.models import User
 from app.modules.orders.models import Order, OrderItem
-from .services import create_order_from_cart, get_user_orders, get_order, update_order_status
+from .services import create_order_from_cart, get_user_orders, get_order, update_order_status, cancel_order
 from .schemas import OrderRead, OrderStatusUpdate
 from app.modules.products.services import get_product
 from sqlmodel import select
@@ -76,4 +76,15 @@ def update_order_status_endpoint(
     order = update_order_status(db, order_id, status_update.status)
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
+    return _enrich_order(order, db)
+
+@router.post("/{order_id}/cancel", response_model=OrderRead)
+def cancel_user_order(
+    order_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_session)
+):
+    order = cancel_order(db, current_user.id, order_id)
+    if not order:
+        raise HTTPException(404, "Order not found")
     return _enrich_order(order, db)

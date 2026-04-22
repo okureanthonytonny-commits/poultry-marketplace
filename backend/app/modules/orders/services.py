@@ -90,3 +90,30 @@ def update_order_status(db: Session, order_id: int, new_status: str) -> Order | 
     db.commit()
     db.refresh(order)
     return order
+
+def cancel_order(db: Session, user_id: int, order_id: int) -> Order | None:
+    order = get_order(db, order_id, user_id, is_admin=False)  # ownership check
+    if not order:
+        return None
+    if order.status != "pending":
+        raise HTTPException(400, "Only pending orders can be cancelled")
+    
+    # Start a transaction
+    try:
+        order_items_stmt = select(OrderItem).where(OrderItem.order_id == order.id)
+        order_items = db.exec(order_items_stmt).all()
+        for item in order_items:
+            product = get_product(db, item.product_id, include_deleted=False)
+            if product:
+                product.stock += item.quantity
+                db.add(product)
+        # Update order status
+        order.status = "cancelled"
+        order.updated_at = datetime.now(timezone.utc).replace(tzinfo=None)
+        db.add(order)
+        db.commit()
+        db.refresh(order)
+        return order
+    except Exception as e:
+        db.rollback()
+        raise e
