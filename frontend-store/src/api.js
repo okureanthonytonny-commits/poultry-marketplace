@@ -114,3 +114,11 @@ export const getOrder = async (orderId) => {
   });
   return handleResponse(res);
 };
+
+export const cancelOrder = async (orderId) => {
+  const res = await fetch(`${API_BASE}/orders/${orderId}/cancel`, {
+    method: 'POST',
+    credentials: 'include',
+  });
+  return handleResponse(res);
+};
