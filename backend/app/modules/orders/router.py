@@ -11,7 +11,6 @@ from sqlmodel import select
 from app.modules.products.services import get_product
 
 def _enrich_order(order: Order, db: Session) -> dict:
-    # Load order items
     stmt = select(OrderItem).where(OrderItem.order_id == order.id)
     items = db.exec(stmt).all()
     enriched_items = []
@@ -50,8 +49,15 @@ def list_orders(
     db: Session = Depends(get_session)
 ):
     orders = get_user_orders(db, current_user.id)
-    # Enrich each order with items (we'll do in a separate helper)
-    # For simplicity, we'll add enrichment in a separate function
+    return [_enrich_order(order, db) for order in orders]
+
+@router.get("/admin", response_model=list[OrderRead])
+def list_all_orders(
+    _: User = Depends(require_admin),
+    db: Session = Depends(get_session)
+):
+    stmt = select(Order).order_by(Order.created_at.desc())
+    orders = db.exec(stmt).all()
     return [_enrich_order(order, db) for order in orders]
 
 @router.get("/{order_id}", response_model=OrderRead)
