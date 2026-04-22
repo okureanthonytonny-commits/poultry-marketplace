@@ -29,7 +29,7 @@ def create_session(db: Session, user_id: int) -> DBSession:
     db_session = DBSession(
         session_id = secrets.token_urlsafe(32), 
         user_id=user_id, 
-        expires_at = datetime.now(timezone.utc) + timedelta(days=7)
+        expires_at = (datetime.now(timezone.utc) + timedelta(days=7)).replace(tzinfo=None)
     )
     db.add(db_session)
     db.commit()
@@ -39,8 +39,7 @@ def create_session(db: Session, user_id: int) -> DBSession:
 def get_user_by_session_id(db: Session, session_id: str) -> User | None:
     statement = select(DBSession).where(DBSession.session_id == session_id)
     db_session = db.exec(statement).first()
-    current_naive = datetime.now(timezone.utc).replace(tzinfo=None)
-    is_not_expired = db_session.expires_at > current_naive
+    is_not_expired = db_session.expires_at > datetime.now(timezone.utc).replace(tzinfo=None)
     is_not_deleted = db_session.deleted_at is None
     if db_session and is_not_expired and is_not_deleted:
         # Now we need to fetch the user – but note: db_session.user is lazy loaded.
