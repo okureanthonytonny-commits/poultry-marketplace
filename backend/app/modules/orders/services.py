@@ -4,7 +4,6 @@ from datetime import datetime, timezone
 from .models import Order, OrderItem
 from app.modules.cart.services import get_cart_items, clear_cart
 from app.modules.products.services import get_product
-from app.modules.auth.models import User
 
 def _validate_and_prepare_order_items(db: Session, cart_items: list) -> list:
     """Validate stock and prepare order items data."""
@@ -92,13 +91,12 @@ def update_order_status(db: Session, order_id: int, new_status: str) -> Order | 
     return order
 
 def cancel_order(db: Session, user_id: int, order_id: int) -> Order | None:
-    order = get_order(db, order_id, user_id, is_admin=False)  # ownership check
+    order = get_order(db, order_id, user_id, is_admin=False)
     if not order:
         return None
     if order.status != "pending":
         raise HTTPException(400, "Only pending orders can be cancelled")
     
-    # Start a transaction
     try:
         order_items_stmt = select(OrderItem).where(OrderItem.order_id == order.id)
         order_items = db.exec(order_items_stmt).all()
@@ -107,9 +105,7 @@ def cancel_order(db: Session, user_id: int, order_id: int) -> Order | None:
             if product:
                 product.stock += item.quantity
                 db.add(product)
-        # Update order status
         order.status = "cancelled"
-        order.updated_at = datetime.now(timezone.utc).replace(tzinfo=None)
         db.add(order)
         db.commit()
         db.refresh(order)
