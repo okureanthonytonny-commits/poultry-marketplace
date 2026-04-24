@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Navbar, Nav, Container, Offcanvas, Button } from 'react-bootstrap';
 import { useUser } from '../context/UserContext';
 import { useCart } from '../context/CartContext';
@@ -19,16 +20,16 @@ const NavigationBar = () => {
     <>
       <Navbar bg="light" expand="lg" className="mb-4">
         <Container>
-          <Navbar.Brand href="/">Limelight Store</Navbar.Brand>
+          <Navbar.Brand as={Link} to="/">Limelight Store</Navbar.Brand>
           <Navbar.Toggle aria-label="Toggle navigation" onClick={() => setShowOffcanvas(true)} />
           <Navbar.Collapse className="d-none d-lg-block">
             <Nav className="ms-auto">
-              <Nav.Link href="/shop">Shop</Nav.Link>
-              <Nav.Link href="/cart">Cart ({cartCount})</Nav.Link>
+              <Nav.Link as={Link} to="/shop">Shop</Nav.Link>
+              <Nav.Link as={Link} to="/cart">Cart ({cartCount})</Nav.Link>
               {user ? (
                 <>
-                  <Navbar.Text>Hello, {user.name}</Navbar.Text>
-                  <Button variant="outline-danger" size="sm" onClick={handleLogout} className="ms-2">Logout</Button>
+                  <Navbar.Text className="me-2">Hello, {user.name}</Navbar.Text>
+                  <Button variant="outline-danger" size="sm" onClick={handleLogout}>Logout</Button>
                 </>
               ) : (
                 <Button variant="primary" size="sm" onClick={login}>Login</Button>
@@ -45,8 +46,8 @@ const NavigationBar = () => {
         </Offcanvas.Header>
         <Offcanvas.Body>
           <Nav className="flex-column">
-            <Nav.Link href="/shop" onClick={() => setShowOffcanvas(false)}>Shop</Nav.Link>
-            <Nav.Link href="/cart" onClick={() => setShowOffcanvas(false)}>Cart ({cartCount})</Nav.Link>
+            <Nav.Link as={Link} to="/shop" onClick={() => setShowOffcanvas(false)}>Shop</Nav.Link>
+            <Nav.Link as={Link} to="/cart" onClick={() => setShowOffcanvas(false)}>Cart ({cartCount})</Nav.Link>
             {user ? (
               <>
                 <Navbar.Text>Hello, {user.name}</Navbar.Text>
