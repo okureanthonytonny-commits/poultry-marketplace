@@ -1,4 +1,3 @@
-// src/context/CartContext.jsx
 import { createContext, useState, useContext, useEffect } from 'react';
 import { getCart, addToCart, updateCartItem, removeCartItem, clearCart } from '../api';
 
@@ -23,7 +22,7 @@ export const CartProvider = ({ children }) => {
     fetchCart();
   }, []);
 
-  const addItem = async (productId, quantity) => {
+  const addItem = async (productId, quantity = 1) => {
     const newItem = await addToCart(productId, quantity);
     setCart(prev => [...prev, newItem]);
   };
