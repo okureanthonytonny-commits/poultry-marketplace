@@ -1,7 +1,5 @@
-// frontend-store/src/api.js
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
-// Helper to handle response errors
 async function handleResponse(res) {
   if (!res.ok) {
     let detail;
