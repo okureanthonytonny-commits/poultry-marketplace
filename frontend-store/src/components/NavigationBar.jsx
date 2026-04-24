@@ -1,44 +1,64 @@
-// src/components/NavigationBar.jsx
-import { useEffect, useState } from 'react';
-import { getCurrentUser, logout, login } from '../api';
+import { useState } from 'react';
+import { Navbar, Nav, Container, Offcanvas, Button } from 'react-bootstrap';
+import { useUser } from '../context/UserContext';
 import { useCart } from '../context/CartContext';
+import { login, logout } from '../api';
 
 const NavigationBar = () => {
-  const [user, setUser] = useState(null);
+  const { user, refetch } = useUser();
   const { cartCount } = useCart();
-
-  useEffect(() => {
-    getCurrentUser().then(setUser);
-  }, []);
+  const [showOffcanvas, setShowOffcanvas] = useState(false);
 
   const handleLogout = async () => {
     await logout();
-    setUser(null);
+    refetch(); // triggers re-fetch of user (will be null)
+    window.location.href = '/';
   };
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-light bg-light">
-      <div className="container">
-        <a className="navbar-brand" href="/">Limelight Store</a>
-        <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-          <span className="navbar-toggler-icon"></span>
-        </button>
-        <div className="collapse navbar-collapse" id="navbarNav">
-          <ul className="navbar-nav ms-auto">
-            <li className="nav-item"><a className="nav-link" href="/shop">Shop</a></li>
-            <li className="nav-item"><a className="nav-link" href="/cart">Cart ({cartCount})</a></li>
+    <>
+      <Navbar bg="light" expand="lg" className="mb-4">
+        <Container>
+          <Navbar.Brand href="/">Limelight Store</Navbar.Brand>
+          <Navbar.Toggle aria-label="Toggle navigation" onClick={() => setShowOffcanvas(true)} />
+          <Navbar.Collapse className="d-none d-lg-block">
+            <Nav className="ms-auto">
+              <Nav.Link href="/shop">Shop</Nav.Link>
+              <Nav.Link href="/cart">Cart ({cartCount})</Nav.Link>
+              {user ? (
+                <>
+                  <Navbar.Text>Hello, {user.name}</Navbar.Text>
+                  <Button variant="outline-danger" size="sm" onClick={handleLogout} className="ms-2">Logout</Button>
+                </>
+              ) : (
+                <Button variant="primary" size="sm" onClick={login}>Login</Button>
+              )}
+            </Nav>
+          </Navbar.Collapse>
+        </Container>
+      </Navbar>
+
+      {/* Offcanvas for mobile */}
+      <Offcanvas show={showOffcanvas} onHide={() => setShowOffcanvas(false)} placement="end">
+        <Offcanvas.Header closeButton>
+          <Offcanvas.Title>Menu</Offcanvas.Title>
+        </Offcanvas.Header>
+        <Offcanvas.Body>
+          <Nav className="flex-column">
+            <Nav.Link href="/shop" onClick={() => setShowOffcanvas(false)}>Shop</Nav.Link>
+            <Nav.Link href="/cart" onClick={() => setShowOffcanvas(false)}>Cart ({cartCount})</Nav.Link>
             {user ? (
               <>
-                <li className="nav-item"><span className="nav-link">Hello, {user.name}</span></li>
-                <li className="nav-item"><button className="btn btn-outline-danger btn-sm" onClick={handleLogout}>Logout</button></li>
+                <Navbar.Text>Hello, {user.name}</Navbar.Text>
+                <Button variant="outline-danger" size="sm" onClick={handleLogout} className="mt-2">Logout</Button>
               </>
             ) : (
-              <li className="nav-item"><button className="btn btn-primary btn-sm" onClick={login}>Login</button></li>
+              <Button variant="primary" size="sm" onClick={login}>Login</Button>
             )}
-          </ul>
-        </div>
-      </div>
-    </nav>
+          </Nav>
+        </Offcanvas.Body>
+      </Offcanvas>
+    </>
   );
 };
 
