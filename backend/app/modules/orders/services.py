@@ -5,23 +5,43 @@ from .models import Order, OrderItem
 from app.modules.cart.services import get_cart_items, clear_cart
 from app.modules.products.services import get_product
 
-def _validate_and_prepare_order_items(db: Session, cart_items: list) -> list:
-    """Validate stock and prepare order items data."""
-    order_items_data = []
+def _validate_cart_items(db: Session, cart_items: list) -> list[tuple]:
+    """Validate the cart items and return pairs of (cart_item, product)."""
+    validated = []
     for cart_item in cart_items:
         product = get_product(db, cart_item.product_id, include_deleted=False)
         if not product:
             raise HTTPException(status_code=400, detail=f"Product {cart_item.product_id} not available")
         if product.stock < cart_item.quantity:
             raise HTTPException(status_code=400, detail=f"Insufficient stock for product {product.name}")
-        order_items_data.append({
+        validated.append((cart_item, product))
+    return validated
+
+
+def _build_order_items_data(validated_items: list[tuple]) -> list[dict]:
+    """Build order item payloads from validated cart/product pairs."""
+    return [
+        {
             "product_id": cart_item.product_id,
             "quantity": cart_item.quantity,
             "price_snapshot": product.price,
-        })
-        # Decrement stock immediately
+        }
+        for cart_item, product in validated_items
+    ]
+
+
+def _decrement_stock(db: Session, validated_items: list[tuple]) -> None:
+    """Apply stock decrement to validated products."""
+    for cart_item, product in validated_items:
         product.stock -= cart_item.quantity
         db.add(product)
+
+
+def _validate_and_prepare_order_items(db: Session, cart_items: list) -> list[dict]:
+    """Validate cart items, build order item payloads, and decrement stock."""
+    validated_items = _validate_cart_items(db, cart_items)
+    order_items_data = _build_order_items_data(validated_items)
+    _decrement_stock(db, validated_items)
     return order_items_data
 
 def _create_order_record(db: Session, user_id: int) -> Order:
