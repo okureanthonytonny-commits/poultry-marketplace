@@ -5,6 +5,28 @@ from .models import Product
 from .schemas import ProductCreate, ProductUpdate
 from fastapi import HTTPException
 
+
+ #--Public service functions for product operations--#
+
+ # These functions can be used by any user, but they will only return non-deleted products by default. 
+ # The include_deleted flag allows admin users to see all products if needed.
+
+# Get 100 products, with pagination and option to include soft-deleted items
+def list_products(db: Session, skip: int = 0, limit: int = 100, include_deleted: bool = False) -> list[Product]:
+    query = select(Product)
+    if not include_deleted:
+        query = query.where(Product.deleted_at.is_(None))
+    return db.exec(query.offset(skip).limit(limit)).all()
+
+# Get a single product by ID, with option to include soft-deleted item 
+def get_product(db: Session, product_id: int, include_deleted: bool = False) -> Product | None:
+    query = select(Product).where(Product.id == product_id)
+    if not include_deleted:
+        query = query.where(Product.deleted_at.is_(None))
+    return db.exec(query).first()
+ 
+ # --Core service functions for product operations, need authorization--#
+ 
 def create_product(db: Session, product_data: ProductCreate) -> Product:
     # Optional: prevent duplicate names (case‑insensitive, ignoring soft‑deleted)
     existing = db.exec(
@@ -17,18 +39,6 @@ def create_product(db: Session, product_data: ProductCreate) -> Product:
     db.commit()
     db.refresh(product)
     return product
-
-def get_product(db: Session, product_id: int, include_deleted: bool = False) -> Product | None:
-    query = select(Product).where(Product.id == product_id)
-    if not include_deleted:
-        query = query.where(Product.deleted_at.is_(None))
-    return db.exec(query).first()
-
-def list_products(db: Session, skip: int = 0, limit: int = 100, include_deleted: bool = False) -> list[Product]:
-    query = select(Product)
-    if not include_deleted:
-        query = query.where(Product.deleted_at.is_(None))
-    return db.exec(query.offset(skip).limit(limit)).all()
 
 def update_product(db: Session, product_id: int, update_data: ProductUpdate) -> Product | None:
     product = get_product(db, product_id, include_deleted=True)  # allow updating deleted? maybe not

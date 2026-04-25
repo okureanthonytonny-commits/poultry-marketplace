@@ -11,9 +11,9 @@ def _validate_and_prepare_order_items(db: Session, cart_items: list) -> list:
     for cart_item in cart_items:
         product = get_product(db, cart_item.product_id, include_deleted=False)
         if not product:
-            raise HTTPException(400, f"Product {cart_item.product_id} not available")
+            raise HTTPException(status_code=400, detail=f"Product {cart_item.product_id} not available")
         if product.stock < cart_item.quantity:
-            raise HTTPException(400, f"Insufficient stock for product {product.name}")
+            raise HTTPException(status_code=400, detail=f"Insufficient stock for product {product.name}")
         order_items_data.append({
             "product_id": cart_item.product_id,
             "quantity": cart_item.quantity,
@@ -43,7 +43,7 @@ def _create_order_items(db: Session, order_id: int, order_items_data: list):
 def create_order_from_cart(db: Session, user_id: int) -> Order:
     cart_items = get_cart_items(db, user_id)
     if not cart_items:
-        raise HTTPException(400, "Cart is empty")
+        raise HTTPException(status_code=400, detail="Cart is empty")
 
     try:
         order_items_data = _validate_and_prepare_order_items(db, cart_items)
@@ -95,7 +95,7 @@ def cancel_order(db: Session, user_id: int, order_id: int) -> Order | None:
     if not order:
         return None
     if order.status != "pending":
-        raise HTTPException(400, "Only pending orders can be cancelled")
+        raise HTTPException(status_code=400, detail="Only pending orders can be cancelled")
     
     try:
         order_items_stmt = select(OrderItem).where(OrderItem.order_id == order.id)

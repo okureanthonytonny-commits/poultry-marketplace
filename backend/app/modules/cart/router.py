@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, logger
 from sqlmodel import Session
 from app.core.database import get_session
 from app.core.dependencies import get_current_user
@@ -38,6 +38,7 @@ def get_user_cart(
             enriched.append(enriched_item)
         else:
             # Product missing – remove item from cart
+            logger.warning(f"Product not found for cart item: {item.id}")
             db.delete(item)
     db.commit()
     return enriched
@@ -63,7 +64,7 @@ def update_item(
 ):
     item = update_cart_item(db, current_user.id, product_id, update.quantity)
     if item is None:
-        raise HTTPException(status_code=404, detail="Item not in cart")
+        return Response(status_code=204)
     enriched = _enrich_cart_item(item, db)
     if not enriched:
         raise HTTPException(status_code=400, detail="Product no longer available")

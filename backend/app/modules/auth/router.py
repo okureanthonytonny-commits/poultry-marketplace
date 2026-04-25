@@ -59,7 +59,7 @@ async def callback(request: Request, db: DBSession = Depends(get_session)):
         name = userinfo.get('name')
         google_id = userinfo.get('sub')
         if not email or not google_id:
-            raise HTTPException(400, "Incomplete user info")
+            raise HTTPException(status_code=400, detail="Incomplete user info")
 
         # Check if user exists
         user = get_user_by_oauth(db, "google", google_id)
@@ -82,8 +82,10 @@ async def callback(request: Request, db: DBSession = Depends(get_session)):
             max_age=7*24*60*60,
         )
         return response
-    except Exception as e:
-        raise HTTPException(400, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception:
+        raise HTTPException(status_code=500, detail="Internal server error during authentication")
 
 @router.post("/logout")
 async def logout(request: Request, response: Response, db: DBSession = Depends(get_session)):
@@ -97,8 +99,8 @@ async def logout(request: Request, response: Response, db: DBSession = Depends(g
 async def get_me(request: Request, db: DBSession = Depends(get_session)):
     session_id = request.cookies.get("session_id")
     if not session_id:
-        raise HTTPException(401, "Not authenticated")
+        raise HTTPException(status_code=401, detail="Not authenticated")
     user = get_user_by_session_id(db, session_id)
     if not user:
-        raise HTTPException(401, "Invalid or expired session")
+        raise HTTPException(status_code=401, detail="Invalid or expired session")
     return user

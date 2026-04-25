@@ -6,7 +6,6 @@ from app.modules.auth.models import User
 from app.modules.orders.models import Order, OrderItem
 from .services import create_order_from_cart, get_user_orders, get_order, update_order_status, cancel_order
 from .schemas import OrderRead, OrderStatusUpdate
-from app.modules.products.services import get_product
 from sqlmodel import select
 from app.modules.products.services import get_product
 
@@ -92,5 +91,5 @@ def cancel_user_order(
 ):
     order = cancel_order(db, current_user.id, order_id)
     if not order:
-        raise HTTPException(404, "Order not found")
+        raise HTTPException(status_code=404, detail="Order not found")
     return _enrich_order(order, db)
