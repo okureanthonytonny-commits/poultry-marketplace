@@ -36,7 +36,9 @@ def add_to_cart(db: Session, user_id: int, product_id: int, quantity: int):
         db.refresh(cart_item)
         return cart_item
 
-def update_cart_item(db: Session, user_id: int, product_id: int, quantity: int):
+def update_cart_item(db: Session, user_id: int, product_id: int, quantity: int) -> CartItem | None:
+    if quantity < 1:
+        raise HTTPException(status_code=400, detail="Quantity must be positive")
     stmt = select(CartItem).where(
         CartItem.user_id == user_id,
         CartItem.product_id == product_id

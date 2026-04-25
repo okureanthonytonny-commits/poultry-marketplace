@@ -64,7 +64,7 @@ def update_item(
 ):
     item = update_cart_item(db, current_user.id, product_id, update.quantity)
     if item is None:
-        return Response(status_code=204)
+        raise HTTPException(status_code=404, detail="Item not in cart")
     enriched = _enrich_cart_item(item, db)
     if not enriched:
         raise HTTPException(status_code=400, detail="Product no longer available")
