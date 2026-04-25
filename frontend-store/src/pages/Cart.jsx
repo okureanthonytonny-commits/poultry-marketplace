@@ -12,7 +12,8 @@ const Cart = () => {
       alert('Order placed!');
       navigate('/orders');
     } catch (err) {
-      alert('Failed to place order: ' + err.message);
+      alert('Failed to place order: ' + err.message); // Error message is displayed, but must be replaced to avoid exposure of backend bugs
+      // alert('Failed to place order. Please try again later.'); --- IGNORE ---
     }
   };
 
@@ -40,7 +41,7 @@ const Cart = () => {
                 <input
                   type="number"
                   value={item.quantity}
-                  onChange={e => updateItem(item.product_id, parseInt(e.target.value) || 0)}
+                  onChange={e => updateItem(item.product_id, parseInt(e.target.value) || 1)}
                   className="form-control"
                   style={{ width: '80px' }}
                 />
