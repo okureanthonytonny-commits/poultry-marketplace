@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, logger
+from fastapi import APIRouter, Depends, Query, logger
 from sqlmodel import Session, select
 from app.core.database import get_session
 from app.core.dependencies import get_current_user
+from app.core.errors import NotFoundError
 from app.modules.auth.models import User
 from app.modules.products.models import Product
 from .services import add_to_cart, get_cart_items, update_cart_item, remove_cart_item, clear_cart
@@ -57,7 +58,7 @@ def add_item(
     cart_item = add_to_cart(db, current_user.id, item.product_id, item.quantity)
     product = _load_products_by_ids(db, [cart_item.product_id], include_deleted=False).get(cart_item.product_id)
     if not product:
-        raise HTTPException(status_code=404, detail="Product not found after add")
+        raise NotFoundError("Product not found after add")
     return {
         "id": cart_item.id,
         "product_id": cart_item.product_id,
@@ -79,7 +80,7 @@ def update_item(
     item = update_cart_item(db, current_user.id, product_id, update.quantity)
     product = _load_products_by_ids(db, [item.product_id], include_deleted=False).get(item.product_id)
     if not product:
-        raise HTTPException(status_code=400, detail="Product no longer available")
+        raise NotFoundError("Product no longer available")
     return {
         "id": item.id,
         "product_id": item.product_id,
