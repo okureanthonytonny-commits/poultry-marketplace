@@ -36,14 +36,6 @@ def _decrement_stock(db: Session, validated_items: list[tuple]) -> None:
         product.stock -= cart_item.quantity
         db.add(product)
 
-
-def _validate_and_prepare_order_items(db: Session, cart_items: list) -> list[dict]:
-    """Validate cart items, build order item payloads, and decrement stock."""
-    validated_items = _validate_cart_items(db, cart_items)
-    order_items_data = _build_order_items_data(validated_items)
-    _decrement_stock(db, validated_items)
-    return order_items_data
-
 def _create_order_record(db: Session, user_id: int) -> Order:
     order = Order(user_id=user_id, status="pending")
     db.add(order)
@@ -66,7 +58,9 @@ def create_order_from_cart(db: Session, user_id: int) -> Order:
         raise HTTPException(status_code=400, detail="Cart is empty")
 
     try:
-        order_items_data = _validate_and_prepare_order_items(db, cart_items)
+        validated_items = _validate_cart_items(db, cart_items)
+        order_items_data = _build_order_items_data(validated_items)
+        _decrement_stock(db, validated_items)
         order = _create_order_record(db, user_id)
         _create_order_items(db, order.id, order_items_data)
         clear_cart(db, user_id)  # no commit inside
