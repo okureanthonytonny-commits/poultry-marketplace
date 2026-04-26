@@ -1,13 +1,20 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from app.modules.auth.router import router as auth_router
 from app.modules.products.router import router as products_router
 from app.modules.cart.router import router as cart_router
 from app.modules.orders.router import router as orders_router
 from app.core.config import settings
+from app.core.errors import DomainError
 from starlette.middleware.sessions import SessionMiddleware
 
 app = FastAPI(title="Limelight v2")
+
+
+@app.exception_handler(DomainError)
+async def domain_error_handler(request: Request, exc: DomainError):
+    return JSONResponse(status_code=exc.status_code, content={"detail": str(exc)})
 
 app.add_middleware(
     SessionMiddleware,

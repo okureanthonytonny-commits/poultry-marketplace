@@ -1,10 +1,10 @@
 from sqlmodel import Session, select
-from fastapi import HTTPException
 from datetime import datetime, timezone
 from .models import Order, OrderItem
 from app.modules.cart.services import get_cart_items, clear_cart
 from app.modules.products.models import Product
 from app.modules.products.services import get_product
+from app.core.errors import EmptyCartError, InsufficientStockError, InvalidOrderTransitionError, OrderCancellationError, ValidationError
 
 def _get_products_by_ids(db: Session, product_ids: list[int], include_deleted: bool = False) -> dict[int, Product]:
     if not product_ids:
@@ -25,9 +25,9 @@ def _validate_cart_items(db: Session, cart_items: list) -> list[tuple]:
     for cart_item in cart_items:
         product = product_map.get(cart_item.product_id)
         if not product:
-            raise HTTPException(status_code=400, detail=f"Product {cart_item.product_id} not available")
+            raise ValidationError(f"Product {cart_item.product_id} not available")
         if product.stock < cart_item.quantity:
-            raise HTTPException(status_code=400, detail=f"Insufficient stock for product {product.name}")
+            raise InsufficientStockError(f"Insufficient stock for product {product.name}")
         validated.append((cart_item, product))
     return validated
 
@@ -69,7 +69,7 @@ def _create_order_items(db: Session, order_id: int, order_items_data: list):
 def create_order_from_cart(db: Session, user_id: int) -> Order:
     cart_items = get_cart_items(db, user_id)
     if not cart_items:
-        raise HTTPException(status_code=400, detail="Cart is empty")
+        raise EmptyCartError("Cart is empty")
 
     try:
         validated_items = _validate_cart_items(db, cart_items)
@@ -109,7 +109,7 @@ def update_order_status(db: Session, order_id: int, new_status: str) -> Order | 
     }
 
     if new_status not in allowed_transitions.get(order.status, []):
-        raise HTTPException(status_code=400, detail=f"Invalid transition from {order.status} to {new_status}")
+        raise InvalidOrderTransitionError(f"Invalid transition from {order.status} to {new_status}")
 
     order.status = new_status
     order.updated_at = datetime.now(timezone.utc).replace(tzinfo=None)
@@ -123,7 +123,7 @@ def cancel_order(db: Session, user_id: int, order_id: int) -> Order | None:
     if not order:
         return None
     if order.status != "pending":
-        raise HTTPException(status_code=400, detail="Only pending orders can be cancelled")
+        raise OrderCancellationError("Only pending orders can be cancelled")
     
     try:
         order_items_stmt = select(OrderItem).where(OrderItem.order_id == order.id)

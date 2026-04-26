@@ -3,9 +3,8 @@ from sqlmodel import Session, select
 from app.core.database import get_session
 from app.core.dependencies import get_current_user
 from app.modules.auth.models import User
-from app.modules.cart.models import CartItem
 from app.modules.products.models import Product
-from .services import add_to_cart, get_cart_item, get_cart_items, update_cart_item, remove_cart_item, clear_cart
+from .services import add_to_cart, get_cart_items, update_cart_item, remove_cart_item, clear_cart
 from .schemas import CartItemCreate, CartItemUpdate, CartItemRead
 
 router = APIRouter(prefix="/cart", tags=["cart"])
