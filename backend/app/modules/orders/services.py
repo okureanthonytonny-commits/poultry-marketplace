@@ -3,13 +3,27 @@ from fastapi import HTTPException
 from datetime import datetime, timezone
 from .models import Order, OrderItem
 from app.modules.cart.services import get_cart_items, clear_cart
+from app.modules.products.models import Product
 from app.modules.products.services import get_product
+
+def _get_products_by_ids(db: Session, product_ids: list[int], include_deleted: bool = False) -> dict[int, Product]:
+    if not product_ids:
+        return {}
+    stmt = select(Product).where(Product.id.in_(product_ids))
+    if not include_deleted:
+        stmt = stmt.where(Product.deleted_at.is_(None))
+    products = db.exec(stmt).all()
+    return {product.id: product for product in products}
+
 
 def _validate_cart_items(db: Session, cart_items: list) -> list[tuple]:
     """Validate the cart items and return pairs of (cart_item, product)."""
+    product_ids = [cart_item.product_id for cart_item in cart_items]
+    product_map = _get_products_by_ids(db, product_ids, include_deleted=False)
+
     validated = []
     for cart_item in cart_items:
-        product = get_product(db, cart_item.product_id, include_deleted=False)
+        product = product_map.get(cart_item.product_id)
         if not product:
             raise HTTPException(status_code=400, detail=f"Product {cart_item.product_id} not available")
         if product.stock < cart_item.quantity:
@@ -114,8 +128,11 @@ def cancel_order(db: Session, user_id: int, order_id: int) -> Order | None:
     try:
         order_items_stmt = select(OrderItem).where(OrderItem.order_id == order.id)
         order_items = db.exec(order_items_stmt).all()
+        product_ids = [item.product_id for item in order_items]
+        product_map = _get_products_by_ids(db, product_ids, include_deleted=False)
+
         for item in order_items:
-            product = get_product(db, item.product_id, include_deleted=False)
+            product = product_map.get(item.product_id)
             if product:
                 product.stock += item.quantity
                 db.add(product)
