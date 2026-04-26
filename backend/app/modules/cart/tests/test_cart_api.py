@@ -18,24 +18,23 @@ def test_add_to_cart(auth_client, session):
     assert data["product_id"] == product.id
     assert data["quantity"] == 2
 
-# must fail with a status 409 
-def test_add_existing_item_increments_quantity(auth_client, session):
+def test_add_existing_item_conflicts(auth_client, session):
     product = Product(name="Duplicate Cart Item", price=15.0, stock=10)
     session.add(product)
     session.commit()
     session.refresh(product)
 
-    auth_client.post("/cart/items", json={"product_id": product.id, "quantity": 2})
-    response = auth_client.post("/cart/items", json={"product_id": product.id, "quantity": 3})
+    response1 = auth_client.post("/cart/items", json={"product_id": product.id, "quantity": 2})
+    assert response1.status_code == 201
 
-    assert response.status_code == 201
-    assert response.json()["quantity"] == 5
+    response2 = auth_client.post("/cart/items", json={"product_id": product.id, "quantity": 3})
+    assert response2.status_code == 409
 
     cart_response = auth_client.get("/cart/")
     assert cart_response.status_code == 200
     items = cart_response.json()
     assert len(items) == 1
-    assert items[0]["quantity"] == 5
+    assert items[0]["quantity"] == 2
 
 
 def test_update_cart_quantity(auth_client, session):
