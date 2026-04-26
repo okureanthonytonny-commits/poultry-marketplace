@@ -1,39 +1,31 @@
 from datetime import datetime, timezone
-
 from sqlmodel import Session, select
 from .models import Product
 from .schemas import ProductCreate, ProductUpdate
-from fastapi import HTTPException
+from app.core.errors import ConflictError, NotFoundError
 
+# --Public service functions for product operations--#
 
- #--Public service functions for product operations--#
-
- # These functions can be used by any user, but they will only return non-deleted products by default. 
- # The include_deleted flag allows admin users to see all products if needed.
-
-# Get 100 products, with pagination and option to include soft-deleted items
 def list_products(db: Session, skip: int = 0, limit: int = 100, include_deleted: bool = False) -> list[Product]:
     query = select(Product)
     if not include_deleted:
         query = query.where(Product.deleted_at.is_(None))
     return db.exec(query.offset(skip).limit(limit)).all()
 
-# Get a single product by ID, with option to include soft-deleted item 
 def get_product(db: Session, product_id: int, include_deleted: bool = False) -> Product | None:
     query = select(Product).where(Product.id == product_id)
     if not include_deleted:
         query = query.where(Product.deleted_at.is_(None))
     return db.exec(query).first()
- 
- # --Core service functions for product operations, need authorization--#
- 
+
+# --Core service functions for product operations, need authorization--#
+
 def create_product(db: Session, product_data: ProductCreate) -> Product:
-    # Optional: prevent duplicate names (case‑insensitive, ignoring soft‑deleted)
     existing = db.exec(
         select(Product).where(Product.name == product_data.name, Product.deleted_at.is_(None))
     ).first()
     if existing:
-        raise HTTPException(status_code=409, detail="Product with this name already exists")
+        raise ConflictError("Product with this name already exists")
     product = Product(**product_data.model_dump())
     db.add(product)
     db.commit()
@@ -41,10 +33,9 @@ def create_product(db: Session, product_data: ProductCreate) -> Product:
     return product
 
 def update_product(db: Session, product_id: int, update_data: ProductUpdate) -> Product | None:
-    product = get_product(db, product_id, include_deleted=True)  # allow updating deleted? maybe not
+    product = get_product(db, product_id, include_deleted=True)
     if not product:
         return None
-    # If name is being changed, check for duplicate (excluding current product)
     if update_data.name is not None and update_data.name != product.name:
         existing = db.exec(
             select(Product).where(
@@ -54,7 +45,7 @@ def update_product(db: Session, product_id: int, update_data: ProductUpdate) -> 
             )
         ).first()
         if existing:
-            raise HTTPException(status_code=409, detail="Another product with this name already exists")
+            raise ConflictError("Another product with this name already exists")
     for field, value in update_data.model_dump(exclude_unset=True).items():
         setattr(product, field, value)
     db.add(product)

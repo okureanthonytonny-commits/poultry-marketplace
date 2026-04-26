@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, Query
 from sqlmodel import Session
 from app.core.database import get_session
 from app.core.dependencies import get_current_user, require_admin
 from app.modules.auth.models import User
+from app.core.errors import NotFoundError
 from .services import create_product, get_product, list_products, update_product, delete_product, restore_product
 from .schemas import ProductCreate, ProductUpdate, ProductRead, ProductReadPublic
 
@@ -21,7 +22,7 @@ def public_list_products(
 def public_get_product(product_id: int, db: Session = Depends(get_session)):
     product = get_product(db, product_id, include_deleted=False)
     if not product:
-        raise HTTPException(status_code=404, detail="Product not found")
+        raise NotFoundError("Product not found")
     return product
 
 # Admin endpoints (require admin role)
@@ -52,7 +53,7 @@ def admin_get_product(
 ):
     product = get_product(db, product_id, include_deleted=include_deleted)
     if not product:
-        raise HTTPException(status_code=404, detail="Product not found")
+        raise NotFoundError("Product not found")
     return product
 
 @router.put("/admin/{product_id}", response_model=ProductRead)
@@ -64,7 +65,7 @@ def admin_update_product(
 ):
     product = update_product(db, product_id, product_data)
     if not product:
-        raise HTTPException(status_code=404, detail="Product not found")
+        raise NotFoundError("Product not found")
     return product
 
 @router.delete("/admin/{product_id}", status_code=204)
@@ -75,7 +76,7 @@ def admin_delete_product(
     _: User = Depends(require_admin)
 ):
     if not delete_product(db, product_id, hard=hard):
-        raise HTTPException(status_code=404, detail="Product not found")
+        raise NotFoundError("Product not found")
     return None
 
 @router.post("/admin/{product_id}/restore", response_model=ProductRead)
@@ -86,5 +87,5 @@ def admin_restore_product(
 ):
     product = restore_product(db, product_id)
     if not product:
-        raise HTTPException(status_code=404, detail="Product not found or not deleted")
+        raise NotFoundError("Product not found or not deleted")
     return product
