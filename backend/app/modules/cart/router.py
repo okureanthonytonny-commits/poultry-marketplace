@@ -55,26 +55,10 @@ def add_item(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_session)
 ):
-    try:
-        cart_item = add_to_cart(db, current_user.id, item.product_id, item.quantity)
-    except HTTPException as exc:
-        if exc.status_code == 409:
-            existing = get_cart_item(db, current_user.id, item.product_id)
-            if not existing:
-                raise
-            cart_item = update_cart_item(
-                db,
-                current_user.id,
-                item.product_id,
-                existing.quantity + item.quantity,
-            )
-        else:
-            raise
-
+    cart_item = add_to_cart(db, current_user.id, item.product_id, item.quantity)
     product = _load_products_by_ids(db, [cart_item.product_id], include_deleted=False).get(cart_item.product_id)
     if not product:
         raise HTTPException(status_code=404, detail="Product not found after add")
-
     return {
         "id": cart_item.id,
         "product_id": cart_item.product_id,
