@@ -7,14 +7,18 @@ from app.modules.orders.models import Order, OrderItem
 from .services import create_order_from_cart, get_user_orders, get_order, update_order_status, cancel_order
 from .schemas import OrderRead, OrderStatusUpdate
 from sqlmodel import select
-from app.modules.products.services import get_product
+from app.modules.products.models import Product
 
 def _enrich_order(order: Order, db: Session) -> dict:
     stmt = select(OrderItem).where(OrderItem.order_id == order.id)
     items = db.exec(stmt).all()
+    product_ids = [item.product_id for item in items]
+    products = db.exec(select(Product).where(Product.id.in_(product_ids))).all() if product_ids else []
+    product_map = {product.id: product for product in products}
+
     enriched_items = []
     for item in items:
-        product = get_product(db, item.product_id, include_deleted=True)
+        product = product_map.get(item.product_id)
         enriched_items.append({
             "id": item.id,
             "product_id": item.product_id,
