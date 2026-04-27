@@ -39,3 +39,15 @@ class InvalidOrderTransitionError(ValidationError):
 
 class OrderCancellationError(ValidationError):
     pass
+
+
+class UnauthorizedError(DomainError):
+    status_code = 401
+
+
+class ForbiddenError(DomainError):
+    status_code = 403
+
+
+class InternalServerError(DomainError):
+    status_code = 500
