@@ -5,6 +5,7 @@ from authlib.integrations.starlette_client import OAuth
 from app.core.database import get_session
 from app.core.config import settings
 from app.core.dependencies import require_admin
+from app.core.errors import NotFoundError, InternalServerError, UnauthorizedError
 from app.modules.auth.models import User
 from .services import create_user, get_user_by_oauth, create_session, get_user_by_session_id, delete_session, update_user, hard_delete_session
 from .schemas import UserCreate, UserRead, UserUpdate
@@ -29,7 +30,7 @@ def admin_update_user(
 ):
     user = update_user(db, user_id, update_data)
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise NotFoundError("User not found")
     return user
 
 @router.delete("/admin/sessions/{session_id}")
@@ -38,7 +39,9 @@ def admin_delete_session(
     db: DBSession = Depends(get_session),
     _: User = Depends(require_admin)
 ):
-    hard_delete_session(db, session_id)
+    deleted = hard_delete_session(db, session_id)
+    if not deleted:
+        raise NotFoundError("Session not found")
     return {"message": "Session hard deleted"}
 
 @router.get("/login")
@@ -85,13 +88,15 @@ async def callback(request: Request, db: DBSession = Depends(get_session)):
     except HTTPException:
         raise
     except Exception:
-        raise HTTPException(status_code=500, detail="Internal server error during authentication")
+        raise InternalServerError("Internal server error during authentication")
 
 @router.post("/logout")
 async def logout(request: Request, response: Response, db: DBSession = Depends(get_session)):
     session_id = request.cookies.get("session_id")
     if session_id:
-        delete_session(db, session_id)
+        deleted = delete_session(db, session_id)
+        if not deleted:
+            raise NotFoundError("Session not found")
     response.delete_cookie("session_id")
     return {"message": "Logged out"}
 
@@ -99,8 +104,8 @@ async def logout(request: Request, response: Response, db: DBSession = Depends(g
 async def get_me(request: Request, db: DBSession = Depends(get_session)):
     session_id = request.cookies.get("session_id")
     if not session_id:
-        raise HTTPException(status_code=401, detail="Not authenticated")
+        raise UnauthorizedError("Not authenticated")
     user = get_user_by_session_id(db, session_id)
     if not user:
-        raise HTTPException(status_code=401, detail="Invalid or expired session")
+        raise UnauthorizedError("Invalid or expired session")
     return user
