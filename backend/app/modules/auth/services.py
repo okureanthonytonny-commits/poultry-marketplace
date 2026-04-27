@@ -23,7 +23,10 @@ def get_user_by_oauth(db: Session, provider: str, oauth_id: str) -> User | None:
         User.oauth_provider == provider,
         User.oauth_id == oauth_id
     )
-    return db.exec(statement).first()
+    user = db.exec(statement).first()
+    if not user:
+        return None
+    return user
 
 def create_session(db: Session, user_id: int) -> DBSession:
     db_session = DBSession(
@@ -45,14 +48,17 @@ def get_user_by_session_id(db: Session, session_id: str) -> User | None:
     if db_session.expires_at <= current_naive or db_session.deleted_at is not None:
         return None
     user_stmt = select(User).where(User.id == db_session.user_id)
-    return db.exec(user_stmt).first()
+    user = db.exec(user_stmt).first()
+    return user
 
-def hard_delete_session(db: Session, session_id: str):
+def hard_delete_session(db: Session, session_id: str) -> bool:
     statement = select(DBSession).where(DBSession.session_id == session_id)
     db_session = db.exec(statement).first()
-    if db_session:
-        db.delete(db_session)
-        db.commit()
+    if not db_session:
+        return False
+    db.delete(db_session)
+    db.commit()
+    return True
 
 def update_user(db: Session, user_id: int, update_data: UserUpdate) -> User | None:
     user = db.get(User, user_id)
@@ -66,10 +72,12 @@ def update_user(db: Session, user_id: int, update_data: UserUpdate) -> User | No
     db.refresh(user)
     return user
 
-def delete_session(db: Session, session_id: str):
+def delete_session(db: Session, session_id: str) -> bool:
     statement = select(DBSession).where(DBSession.session_id == session_id)
     db_session = db.exec(statement).first()
-    if db_session:
-        db_session.deleted_at = datetime.now(timezone.utc).replace(tzinfo=None)
-        db.add(db_session)
-        db.commit()
+    if not db_session:
+        return False
+    db_session.deleted_at = datetime.now(timezone.utc).replace(tzinfo=None)
+    db.add(db_session)
+    db.commit()
+    return True
