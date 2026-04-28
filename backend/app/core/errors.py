@@ -1,12 +1,14 @@
-class DomainError(Exception):
+from fastapi import HTTPException
+
+class DomainError(HTTPException):
     status_code = 400
 
     def __init__(self, detail: str | None = None):
-        self.detail = detail or self.__class__.__name__.replace("Error", "").strip()
-        super().__init__(self.detail)
+        detail_text = detail or self.__class__.__name__.replace("Error", "").strip()
+        super().__init__(status_code=self.status_code, detail=detail_text)
 
     def __str__(self) -> str:
-        return self.detail
+        return str(self.detail)
 
 
 class NotFoundError(DomainError):

@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Depends, Query, logger
+from fastapi import APIRouter, Depends, Query
 from sqlmodel import Session, select
 from app.core.database import get_session
 from app.core.dependencies import get_current_user
-from app.core.errors import NotFoundError
+from app.core.errors import InsufficientStockError, NotFoundError
 from app.modules.auth.models import User
 from app.modules.products.models import Product
 from .services import add_to_cart, get_cart_items, update_cart_item, remove_cart_item, clear_cart
@@ -25,6 +25,8 @@ def get_user_cart(
     db: Session = Depends(get_session)
 ):
     cart_items = get_cart_items(db, current_user.id)
+    if not cart_items:
+        return []
     product_ids = [item.product_id for item in cart_items]
     product_map = _load_products_by_ids(db, product_ids, include_deleted=False)
 
@@ -43,7 +45,7 @@ def get_user_cart(
                 "updated_at": item.updated_at,
             })
         else:
-            logger.warning(f"Product not found for cart item: {item.id}")
+            #logger.warning(f"Product not found for cart item: {item.id}")
             db.delete(item)
 
     db.commit()
@@ -77,10 +79,13 @@ def update_item(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_session)
 ):
-    item = update_cart_item(db, current_user.id, product_id, update.quantity)
-    product = _load_products_by_ids(db, [item.product_id], include_deleted=False).get(item.product_id)
+    product = _load_products_by_ids(db, [product_id], include_deleted=False).get(product_id)
     if not product:
-        raise NotFoundError("Product no longer available")
+        raise NotFoundError("Product not found")
+    if product.stock < update.quantity:
+        raise InsufficientStockError("Insufficient stock")
+
+    item = update_cart_item(db, current_user.id, product_id, update.quantity)
     return {
         "id": item.id,
         "product_id": item.product_id,
@@ -98,12 +103,17 @@ def remove_item_from_cart(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_session)
 ):
-    remove_cart_item(db, current_user.id, product_id)
+    result = remove_cart_item(db, current_user.id, product_id)
+    if not result:
+        raise NotFoundError("Item not in cart")
 
 @router.delete("/", status_code=204)
 def clear_user_cart(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_session)
 ):
-    clear_cart(db, current_user.id)
-    return None
+    deleted_count = clear_cart(db, current_user.id)
+    if deleted_count > 0:
+        # return {"message": f"Cleared {deleted_count} items from cart" }
+        return None
+    raise NotFoundError("Cart is already empty")
