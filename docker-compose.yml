@@ -3,7 +3,7 @@ services:
     image: postgres:15
     environment:
       POSTGRES_USER: limelight_admin
-      POSTGRES_PASSWORD: ca67c783dfc74ef9db33794b
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
       POSTGRES_DB: limelight_v2
     ports:
       - "5432:5432"
